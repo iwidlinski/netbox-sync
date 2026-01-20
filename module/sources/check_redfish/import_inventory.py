@@ -875,7 +875,11 @@ class CheckRedfish(SourceBase):
 
                 port_data = data_to_update
 
-            self.add_update_interface(nic_object, self.device_object, port_data, nic_ips.get(port_name, list()))
+            if (port_data.get("mgmt_only") is None or port_data.get("mgmt_only") == False):
+                self.add_update_interface(nic_object, self.device_object, port_data, nic_ips.get(port_name, list()), interface_skip_ip_handling=self.settings.skip_ip_handling_nonmgmt_interface)
+            else:
+                self.add_update_interface(nic_object, self.device_object, port_data, nic_ips.get(port_name, list()))
+
 
     def update_manager(self):
 

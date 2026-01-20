@@ -70,6 +70,11 @@ class CheckRedfishConfig(ConfigBase):
                          via check_redfish if False only data which is not preset in NetBox will be added""",
                          default_value=False),
 
+            ConfigOption("skip_ip_handling_nonmgmt_interface",
+                         bool,
+                         description="""define whether to mangate ip handling on non magmt interfaces""",
+                         default_value=True),
+
             ConfigOption(**config_option_ip_tenant_inheritance_order_definition),
         ]
 

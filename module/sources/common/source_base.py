@@ -231,7 +231,7 @@ class SourceBase:
         return current_longest_matching_prefix
 
     def add_update_interface(self, interface_object, device_object, interface_data, interface_ips=None,
-                             vmware_object=None):
+                             vmware_object=None, interface_skip_ip_handling=False):
         """
         Adds/Updates an interface to/of a NBVM or NBDevice including IP addresses.
         Validates/enriches data in following order:
@@ -256,6 +256,8 @@ class SourceBase:
             a list of ip addresses which are assigned to this interface
         vmware_object: vim.HostSystem | vim.VirtualMachine
             object to add to list of objects to reevaluate
+        interface_skip_ip_handling: bool
+            whether to skip handling ip for this interface
 
         Returns
         -------
@@ -364,6 +366,10 @@ class SourceBase:
         skip_ip_handling = False
         if type(device_object) == NBVM and grab(vmware_object,'guest.toolsRunningStatus') != "guestToolsRunning":
             log.debug(f"VM '{device_object.name}' guest tool status is 'NotRunning', skipping IP handling")
+            skip_ip_handling = True
+
+        if ( interface_skip_ip_handling ):
+            log.warning(f"Skipping ip handling for this interface: {interface_object.get_display_name()}")
             skip_ip_handling = True
 
         ip_address_objects = list()
