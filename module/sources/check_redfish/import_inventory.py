@@ -874,7 +874,7 @@ class CheckRedfish(SourceBase):
                     data_to_update["mac_address"] = mac_address
 
                 port_data = data_to_update
-            log.warning(f"MGMT_ONLY: {port_data.get("mgmt_only")}") 
+            #log.warning(f"MGMT_ONLY: {port_data.get("mgmt_only")}") 
             if (port_data.get("mgmt_only") is None or port_data.get("mgmt_only") == False):
                 self.add_update_interface(nic_object, self.device_object, port_data, nic_ips.get(port_name, list()), interface_skip_ip_handling=self.settings.skip_ip_handling_nonmgmt_interface)
             else:
