@@ -728,6 +728,7 @@ class CheckRedfish(SourceBase):
         port_data_dict = dict()
         nic_ips = dict()
         discovered_int_list = list()
+        discovered_mac_port_map = dict()
 
         for nic_port in grab(self.inventory_file_content, "inventory.network_port", fallback=list()):
 
@@ -750,22 +751,42 @@ class CheckRedfish(SourceBase):
             if isinstance(interface_addresses, list):
                 for interface_address in interface_addresses:
                     interface_address = normalize_mac_address(interface_address)
+                    if interface_address is None:
+                        continue
+
+                    octets = interface_address.split(":")
 
                     # get 1. mac address
-                    if mac_address is None and len(interface_address.split(":")) == 6:
+                    if mac_address is None and len(octets) == 6:
                         mac_address = interface_address
 
-                    if wwn is None and len(interface_address.split(":")) == 8:
+                    if wwn is None and len(octets) == 8:
                         wwn = interface_address
 
             if mac_address in discovered_int_list or wwn in discovered_int_list:
                 continue
 
+            port_log_name = port_name or port_id or "unknown"
+            if port_name is not None and port_id is not None:
+                port_log_name = f"{port_name} ({port_id})"
+
             if mac_address is not None:
                 discovered_int_list.append(mac_address)
+                discovered_mac_port_map[mac_address] = port_log_name
 
             if wwn is not None:
                 discovered_int_list.append(wwn)
+
+            if mac_address is None and wwn is not None and self.settings.derive_mac_from_guid is True:
+                derived_mac = ":".join(wwn.split(":")[0:6])
+                existing_port = discovered_mac_port_map.get(derived_mac)
+                if existing_port is None:
+                    mac_address = derived_mac
+                    discovered_mac_port_map[derived_mac] = port_log_name
+                    log.debug(f"Derived MAC '{derived_mac}' from WWN '{wwn}' for interface '{port_log_name}'")
+                else:
+                    log.warning(f"Derived MAC '{derived_mac}' from WWN '{wwn}' for interface '{port_log_name}' "
+                                f"already used by interface '{existing_port}'. Keeping interface without MAC.")
 
             if port_name is not None:
                 port_name += f" ({port_id})"

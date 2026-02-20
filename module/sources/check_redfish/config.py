@@ -70,6 +70,12 @@ class CheckRedfishConfig(ConfigBase):
                          via check_redfish if False only data which is not preset in NetBox will be added""",
                          default_value=False),
 
+            ConfigOption("derive_mac_from_guid",
+                         bool,
+                         description="""define whether to derive a MAC address from the first 6 octets of an
+                         8-octet GUID/WWN when no 6-octet MAC is present""",
+                         default_value=True),
+
             ConfigOption("skip_ip_handling_nonmgmt_interface",
                          bool,
                          description="""define whether to mangate ip handling on non magmt interfaces""",

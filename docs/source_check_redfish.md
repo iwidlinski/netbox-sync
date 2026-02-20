@@ -54,6 +54,22 @@ At first some custom fields will be added if not already present.
 
 ### Parsing inventory files
 
+### Network interface address parsing
+
+When parsing `inventory.network_port[].addresses` this source uses the following order:
+
+1. First valid 6-octet address is used as `mac_address`
+2. First valid 8-octet address is used as `wwn`
+3. If no 6-octet MAC was found and `derive_mac_from_guid = True`, derive a MAC from the first 6 octets of `wwn`
+
+Example:
+
+- GUID/WWN: `45:16:6F:00:03:47:BB:4C`
+- Derived MAC: `45:16:6F:00:03:47`
+
+If a derived MAC is already used by another interface on the same device during the same sync run,
+the interface is still imported, `wwn` is kept, and `mac_address` remains unset for that interface.
+
 #### Example inventory
 ```json
 {
@@ -150,4 +166,3 @@ storage_enclosure  |Storage Enclosure |dcim/inventory-items
 network_adapter    |NIC               |dcim/inventory-items
 network_port       |N/A               |dcim/interfaces
 manager            |Manager           |dcim/inventory-items
-
