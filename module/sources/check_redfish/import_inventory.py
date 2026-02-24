@@ -778,7 +778,13 @@ class CheckRedfish(SourceBase):
                 discovered_int_list.append(wwn)
 
             if mac_address is None and wwn is not None and self.settings.derive_mac_from_guid is True:
-                derived_mac = ":".join(wwn.split(":")[0:6])
+                wwn_octets = wwn.split(":")
+                # Some vendors expose GUID/WWN as OUI + "00:03" + NIC-specific octets.
+                # For MAC derivation, drop the middle "00:03" segment when present.
+                if wwn_octets[3:5] == ["00", "03"]:
+                    derived_mac = ":".join(wwn_octets[0:3] + wwn_octets[5:8])
+                else:
+                    derived_mac = ":".join(wwn_octets[0:6])
                 existing_port = discovered_mac_port_map.get(derived_mac)
                 if existing_port is None:
                     mac_address = derived_mac

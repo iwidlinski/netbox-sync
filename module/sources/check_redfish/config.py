@@ -72,8 +72,9 @@ class CheckRedfishConfig(ConfigBase):
 
             ConfigOption("derive_mac_from_guid",
                          bool,
-                         description="""define whether to derive a MAC address from the first 6 octets of an
-                         8-octet GUID/WWN when no 6-octet MAC is present""",
+                         description="""define whether to derive a MAC address from an 8-octet GUID/WWN by
+                         removing the middle 00:03 octets when present (otherwise first 6 octets) when no
+                         6-octet MAC is present""",
                          default_value=True),
 
             ConfigOption("skip_ip_handling_nonmgmt_interface",
